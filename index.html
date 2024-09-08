@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Loan Calculator</h1>
+        <div class="form-group">
+            <label for="principal">Principal Amount ($):</label>
+            <input type="number" id="principal" required>
+        </div>
+        <div class="form-group">
+            <label for="emi">Initial Monthly EMI ($):</label>
+            <input type="number" id="emi" required>
+        </div>
+        <div class="form-group">
+            <label for="extra">Extra Amount Added to EMI ($):</label>
+            <input type="number" id="extra" value="0">
+        </div>
+        <div class="form-group">
+            <label for="interest">Annual Interest Rate (%):</label>
+            <input type="number" id="interest" step="0.01" required>
+        </div>
+        <button onclick="calculateLoan()">Calculate</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateLoan() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            let emi = parseFloat(document.getElementById('emi').value);
+            const extra = parseFloat(document.getElementById('extra').value);
+            const annualInterestRate = parseFloat(document.getElementById('interest').value);
+
+            if (isNaN(principal) || isNaN(emi) || isNaN(extra) || isNaN(annualInterestRate) || principal <= 0 || emi <= 0 || extra < 0 || annualInterestRate <= 0) {
+                document.getElementById('result').innerHTML = 'Please enter valid positive numbers for all fields.';
+                return;
+            }
+
+            const monthlyInterestRate = annualInterestRate / 100 / 12;
+            let remainingPrincipal = principal;
+            let totalInterest = 0;
+            let totalMonths = 0;
+
+            while (remainingPrincipal > 0) {
+                const interestForMonth = remainingPrincipal * monthlyInterestRate;
+                totalInterest += interestForMonth;
+                let totalPayment = emi + extra; // Add extra amount to EMI
+                remainingPrincipal -= (totalPayment - interestForMonth);
+
+                if (remainingPrincipal < 0) {
+                    totalPayment = emi + remainingPrincipal + interestForMonth; // Adjust final payment
+                    remainingPrincipal = 0;
+                }
+
+                totalMonths++;
+            }
+
+            const totalYears = totalMonths / 12;
+
+            document.getElementById('result').innerHTML = `
+                <p>Total Interest Paid: $${totalInterest.toFixed(2)}</p>
+                <p>Total Years to Complete Loan: ${totalYears.toFixed(2)} years</p>
+                <p>Total Months to Complete Loan: ${totalMonths}</p>
+            `;
+        }
+    </script>
+</body>
+
+</html>
